@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HAYATO INFO | Premium FF Info</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+  --gold:#FFD700;
+  --dark:#0b0b0b;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Segoe UI, sans-serif;
+}
+
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(circle at top, #ffdf70, #3b2f00, #000);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+}
+
+.container{
+  width:95%;
+  max-width:420px;
+  background:rgba(0,0,0,.82);
+  border-radius:20px;
+  padding:25px;
+  box-shadow:0 0 35px var(--gold);
+}
+
+.title{
+  text-align:center;
+  font-size:32px;
+  color:var(--gold);
+  text-shadow:0 0 25px var(--gold);
+  margin-bottom:5px;
+}
+
+.subtitle{
+  text-align:center;
+  color:#c9b45a;
+  font-size:13px;
+  margin-bottom:20px;
+}
+
+.search{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.search input,
+.search select{
+  padding:13px;
+  border-radius:12px;
+  border:none;
+  outline:none;
+  font-size:15px;
+}
+
+.search button{
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  background:linear-gradient(90deg,#ffea00,#caa000);
+  font-weight:700;
+  cursor:pointer;
+  color:#000;
+  box-shadow:0 0 20px var(--gold);
+}
+
+.search button:hover{
+  box-shadow:0 0 35px var(--gold);
+}
+
+.loading{
+  margin-top:15px;
+  text-align:center;
+  color:var(--gold);
+  animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+  0%{opacity:.3}
+  50%{opacity:1}
+  100%{opacity:.3}
+}
+
+/* FF STYLE CARD */
+.card{
+  margin-top:20px;
+  background:
+    linear-gradient(145deg,#1a1300,#000);
+  border-radius:18px;
+  padding:18px;
+  box-shadow:
+    inset 0 0 10px #000,
+    0 0 25px var(--gold);
+  position:relative;
+  overflow:hidden;
+}
+
+.card::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius:20px;
+  background:linear-gradient(120deg,transparent,var(--gold),transparent);
+  opacity:.4;
+}
+
+.player{
+  display:flex;
+  gap:15px;
+  align-items:center;
+}
+
+.player img{
+  width:85px;
+  height:85px;
+  border-radius:50%;
+  border:3px solid var(--gold);
+  box-shadow:0 0 20px var(--gold);
+}
+
+.player h2{
+  color:var(--gold);
+  font-size:20px;
+}
+
+.badge{
+  display:inline-block;
+  margin-top:5px;
+  padding:4px 10px;
+  background:var(--gold);
+  color:#000;
+  border-radius:8px;
+  font-size:12px;
+  font-weight:bold;
+}
+
+.stats{
+  margin-top:12px;
+  font-size:14px;
+  line-height:1.6;
+}
+
+.stat{
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px solid rgba(255,215,0,.2);
+  padding:4px 0;
+}
+
+.footer{
+  margin-top:15px;
+  text-align:center;
+  font-size:12px;
+  color:#bfa94d;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1 class="title">HAYATO INFO</h1>
+  <p class="subtitle">Premium Free Fire Player Info</p>
+
+  <div class="search">
+    <input id="uid" placeholder="Free Fire UID daalo">
+    <select id="region">
+      <option value="IND">IND</option>
+      <option value="BD">BD</option>
+      <option value="PK">PK</option>
+    </select>
+    <button onclick="fetchInfo()">SEARCH PLAYER</button>
+  </div>
+
+  <div id="output"></div>
+
+  <div class="footer">
+    Premium Golden System • HAYATO INFO
+  </div>
+</div>
+
+<script>
+async function fetchInfo(){
+  const uid=document.getElementById("uid").value;
+  const region=document.getElementById("region").value;
+  const out=document.getElementById("output");
+
+  if(!uid){
+    out.innerHTML="<p style='color:red;margin-top:10px'>UID daalo</p>";
+    return;
+  }
+
+  out.innerHTML="<div class='loading'>Fetching Premium Data...</div>";
+
+  try{
+    const res = await fetch(
+      `https://hayato-info-api.vercel.app/info?uid=${uid}&region=${region}`
+    );
+
+    const d = await res.json();
+
+    if(d.error){
+      out.innerHTML = `<p style="color:red">${d.error}</p>`;
+      return;
+    }
+
+    const b = d.basic_info;
+    const c = d.clan_basic_info || {};
+
+    out.innerHTML = `
+      <div class="card">
+        <div class="player">
+          <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
+          <div>
+            <h2>${b.nickname}</h2>
+            <div class="badge">LEVEL ${b.level}</div>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><span>UID</span><span>${b.account_id}</span></div>
+          <div class="stat"><span>Region</span><span>${b.region}</span></div>
+          <div class="stat"><span>Likes</span><span>${b.liked}</span></div>
+          <div class="stat"><span>BR Rank</span><span>${b.rank}</span></div>
+          <div class="stat"><span>CS Rank</span><span>${b.cs_rank}</span></div>
+          <div class="stat"><span>Clan</span><span>${c.clan_name || "No Clan"}</span></div>
+        </div>
+      </div>
+    `;
+  }
+  catch(e){
+    out.innerHTML="<p style='color:red'>API connect nahi ho rahi</p>";
+  }
+}
+</script>
+
+</body>
+</html>
